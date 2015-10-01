@@ -109,7 +109,7 @@ int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
     }
 
         //if not enough space, resize
-    if (table->len >= table->cap) {
+    if (table->len + 1 >= table->cap) {
       Symbol *pt;
       pt = realloc(table->tbl, (SCALING_FACTOR * table->cap * sizeof(Symbol)));
       if (pt == NULL) {
