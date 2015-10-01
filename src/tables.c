@@ -111,10 +111,9 @@ int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
       return -1;
     }
 
-    Symbol symb = NULL;
-    symb = table->tbl[table->len];
-    symb->name = copy;
-    symb->addr = addr;
+    Symbol symb = table->tbl[table->len];
+    symb.name = copy;
+    symb.addr = addr;
 
     table->len++;
 
