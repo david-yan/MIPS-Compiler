@@ -55,6 +55,8 @@ SymbolTable* create_table(int mode) {
       allocation_failed();
     }
     table->tbl = symb;
+    table->len = 0;
+    table->cap = INITIAL_SIZE;
 
     return table;
 }
@@ -106,7 +108,7 @@ int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
 
         //if not enough space, resize
     if (table->len == table->cap) {
-      Symbol *pt = NULL;
+      Symbol *pt;
       pt = realloc(table->tbl, (SCALING_FACTOR * table->cap * sizeof(Symbol)));
       if (pt == NULL) {
         printf("GO AWAY");
