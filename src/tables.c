@@ -122,9 +122,9 @@ int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
 
     char* copy = create_copy_of_str(name);
 
-    Symbol symb = (table->tbl)[table->len];
-    symb.name = copy;
-    symb.addr = addr;
+    Symbol *symb = (table->tbl) + table->len;
+    symb->name = copy;
+    symb->addr = addr;
 
     table->len++;
 
@@ -153,7 +153,7 @@ void write_table(SymbolTable* table, FILE* output) {
     /* YOUR CODE HERE */
   int count = 0;
   while (count < table->len) {
-    Symbol symb= table->tbl[count];
-    write_symbol(table, symb.address, symb.name);
+    Symbol* symb = (table->tbl)+ count;
+    write_symbol(output, symb->addr, symb->name);
   }
 }
