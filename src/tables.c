@@ -50,8 +50,9 @@ SymbolTable* create_table(int mode) {
       allocation_failed();
     }
     table->mode = mode;
-    Symbol *symb = malloc(INITIAL_SIZE * sizeof(Symbol));
-    table->tbl = symb;
+    table->tbl = malloc(INITIAL_SIZE * sizeof(Symbol));
+    table->len = 0;
+    table->cap = INITIAL_SIZE;
 
     return table;
 }
@@ -88,17 +89,6 @@ static char* create_copy_of_str(const char* str) {
    Otherwise, you should store the symbol name and address and return 0.
  */
 int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
-    //if not enough space, resize
-    if (table->len == table->cap) {
-      table->tbl = realloc(table->tbl, SCALING_FACTOR * table->len * sizeof(Symbol));
-      if (table->tbl == NULL) {
-        allocation_failed();
-      }
-      table->cap *= SCALING_FACTOR;
-    }
-
-    char* copy = create_copy_of_str(name);
-
     //if addr is not word-aligned
     if (addr % 4 != 0) {
       addr_alignment_incorrect();
@@ -111,12 +101,20 @@ int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
       return -1;
     }
 
-    Symbol symb = table->tbl[table->len];
-    symb.name = copy;
-    symb.addr = addr;
+    //if not enough space, resize
+    if (table->len == table->cap) {
+      table->tbl = realloc(table->tbl, SCALING_FACTOR * table->len * sizeof(Symbol));
+      if (table->tbl == NULL) {
+        allocation_failed();
+      }
+      table->cap *= SCALING_FACTOR;
+    }
+    char* copy = create_copy_of_str(name);
 
+    Symbol *symb = &table->tbl[table->len];
+    symb->name = copy;
+    symb->addr = addr;
     table->len++;
-
     return 0;
 }
 
@@ -126,12 +124,13 @@ int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
 
 int64_t get_addr_for_symbol(SymbolTable* table, const char* name) {
     int count = 0;
-    Symbol* symbol = table.tbl;
-    while(symbol != NULL)
+    Symbol* symbol = &table->tbl[0];
+    while(count < table->len)
     {
       if (strcmp(symbol->name, name) == 0)
         return symbol->addr;
-      symbol = symbol +  sizeof(Symbol);
+      symbol++;
+      count++;
     }
     return -1;
 }
@@ -140,5 +139,10 @@ int64_t get_addr_for_symbol(SymbolTable* table, const char* name) {
    perform the write. Do not print any additional whitespace or characters.
  */
 void write_table(SymbolTable* table, FILE* output) {
-    /* YOUR CODE HERE */
+  Symbol *symbol = table->tbl;
+  for (int count = 0; count < table->len; count++)
+  {
+    write_symbol(output, symbol->addr, symbol->name);
+    symbol++;
+  }
 }
