@@ -107,11 +107,10 @@ int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
     }
 
         //if not enough space, resize
-    if (table->len == table->cap) {
+    if (table->len >= table->cap) {
       Symbol *pt;
       pt = realloc(table->tbl, (SCALING_FACTOR * table->cap * sizeof(Symbol)));
       if (pt == NULL) {
-        printf("GO AWAY");
         allocation_failed();
       }
       table->tbl = pt;
@@ -136,9 +135,8 @@ int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
 int64_t get_addr_for_symbol(SymbolTable* table, const char* name) {
     int count = 0;
     while (count < table-> len) {
-      int offset = (count * sizeof(*(table->tbl)));
-      if (strcmp((table->tbl + offset)->name, name)) { //found the name
-        return (table->tbl + offset)->addr;
+      if (strcmp((table->tbl + count)->name, name)) { //found the name
+        return (table->tbl + count)->addr;
       }
       count++;
     }
