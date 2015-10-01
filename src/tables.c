@@ -91,17 +91,6 @@ static char* create_copy_of_str(const char* str) {
    Otherwise, you should store the symbol name and address and return 0.
  */
 int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
-    //if not enough space, resize
-    if (table->len == table->cap) {
-      table->tbl = realloc(table->tbl, (SCALING_FACTOR * table->cap * sizeof(Symbol)));
-      if (table->tbl == NULL) {
-        printf("GO AWAY");
-        allocation_failed();
-      }
-      table->cap *= SCALING_FACTOR;
-    }
-
-    char* copy = create_copy_of_str(name);
 
     //if addr is not word-aligned
     if (addr % 4 != 0) {
@@ -114,6 +103,20 @@ int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
       name_already_exists(name);
       return -1;
     }
+
+        //if not enough space, resize
+    if (table->len == table->cap) {
+      Symbol *pt = NULL;
+      pt = realloc(table->tbl, (SCALING_FACTOR * table->cap * sizeof(Symbol)));
+      if (pt == NULL) {
+        printf("GO AWAY");
+        allocation_failed();
+      }
+      table->tbl = pt;
+      table->cap *= SCALING_FACTOR;
+    }
+
+    char* copy = create_copy_of_str(name);
 
     Symbol symb = table->tbl[table->len];
     symb.name = copy;
