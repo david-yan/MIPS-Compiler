@@ -151,4 +151,9 @@ int64_t get_addr_for_symbol(SymbolTable* table, const char* name) {
  */
 void write_table(SymbolTable* table, FILE* output) {
     /* YOUR CODE HERE */
+  int count = 0;
+  while (count < table->len) {
+    Symbol symb= table->tbl[count];
+    write_symbol(table, symb.address, symb.name);
+  }
 }
