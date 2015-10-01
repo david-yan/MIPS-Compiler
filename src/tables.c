@@ -47,11 +47,13 @@ SymbolTable* create_table(int mode) {
     SymbolTable *table = NULL;
     table = malloc(1 * sizeof(SymbolTable));
     if (table == NULL) {
+      printf("create");
       allocation_failed();
     }
     table->mode = mode;
     Symbol *symb = malloc(INITIAL_SIZE * sizeof(Symbol));
     if (symb == NULL) {
+      printf("create");
       allocation_failed();
     }
     table->tbl = symb;
@@ -95,6 +97,7 @@ int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
     if (table->len == table->cap) {
       table->tbl = realloc(table->tbl, SCALING_FACTOR * table->len * sizeof(Symbol));
       if (table->tbl == NULL) {
+        printf("add");
         allocation_failed();
       }
       table->cap *= SCALING_FACTOR;
