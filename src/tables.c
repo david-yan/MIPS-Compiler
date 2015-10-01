@@ -44,9 +44,8 @@ void write_symbol(FILE* output, uint32_t addr, const char* name) {
    to store this value for use during add_to_table().
  */
 SymbolTable* create_table(int mode) {
-    /* YOUR CODE HERE */
     SymbolTable *table = NULL;
-    table = malloc(1 * sizeof(*table));
+    table = malloc(INITIAL_SIZE * sizeof(*table));
     if (table == NULL) {
       allocation_failed();
     }
@@ -56,7 +55,6 @@ SymbolTable* create_table(int mode) {
 
 /* Frees the given SymbolTable and all associated memory. */
 void free_table(SymbolTable* table) {
-    /* YOUR CODE HERE ?????? */
     free(table->tbl);
     free(table);
 }
@@ -87,15 +85,56 @@ static char* create_copy_of_str(const char* str) {
    Otherwise, you should store the symbol name and address and return 0.
  */
 int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
-    /* YOUR CODE HERE */
+    //if not enough space, resize
+    if (table->len == table->cap) {
+      Symbol *pointer = malloc(SCALING_FACTOR * table->len * sizeof(table->tbl));
+      if (pointer == NULL) {
+        allocation_failed();
+      }
+      pointer = table->tbl;
+      table->cap *= SCALING_FACTOR;
+      free(table->tbl);
+      table->tbl = pointer;
+    }
+
+    char copy = create_copy_of_str(name);
+
+    //if addr is not word-aligned
+    if (addr % 4 != 0) {
+      addr_alignment_incorrect();
+      return -1;
+    } 
+
+    //if table requires unique name and name already exists in table
+    if (table->mode == SYMTBL_UNIQUE_NAME && get_addr_for_symbol(table, name) != -1) {
+      name_already_exists();
+      return -1;
+    }
+
+    Symbol *symb = NULL;
+    symb = malloc(sizeof(table->tbl));
+    symb->name = copy;
+    symb->addr = addr;
+    *table->tbl[table->len * sizeof(*(table->tbl))] = symb;
+
+    table->len++;
+
     return -1;
 }
 
 /* Returns the address (byte offset) of the given symbol. If a symbol with name
    NAME is not present in TABLE, return -1.
  */
+
 int64_t get_addr_for_symbol(SymbolTable* table, const char* name) {
-    /* YOUR CODE HERE */ 
+    int count = 0;
+    while (count < table-> len) {
+      int offset = (count * sizeof(*(table->tbl));
+      if (strcmp((table->tbl + offset)->name, name)) { //found the name
+        return (table->tbl + offset)->addr;
+      }
+      count++;
+    }
     return -1;
 }
 
