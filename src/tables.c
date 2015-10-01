@@ -50,8 +50,8 @@ SymbolTable* create_table(int mode) {
       allocation_failed();
     }
     table->mode = mode;
-    Symbol *symb = NULL;
-    Symbol *pointer = malloc(INITIAL_SIZE * sizeof(Symbol));
+    Symbol *symb = malloc(INITIAL_SIZE * sizeof(Symbol));
+    table->tbl = symb;
 
     return table;
 }
@@ -111,6 +111,7 @@ int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
       return -1;
     }
 
+    Symbol *symb = NULL;
     symb = table->tbl[table->len];
     symb->name = copy;
     symb->addr = addr;
