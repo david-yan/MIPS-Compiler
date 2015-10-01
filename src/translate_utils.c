@@ -53,8 +53,7 @@ int is_valid_label(const char* str) {
    function returns 0 if the conversion proceeded without errors, or -1 if an 
    error occurred.
  */
-int translate_num(long int* output, const char* str, long int lower_bound, 
-    long int upper_bound) {
+int translate_num(long int* output, const char* str, long int lower_bound, long int upper_bound) {
     if (!str || !output) {
         return -1;
     }
@@ -67,8 +66,6 @@ int translate_num(long int* output, const char* str, long int lower_bound,
       *output = temp;
       return 0; 
     }
-
-    /* YOUR CODE HERE */
     return -1;
 }
 

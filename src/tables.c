@@ -44,8 +44,8 @@ void write_symbol(FILE* output, uint32_t addr, const char* name) {
    to store this value for use during add_to_table().
  */
 SymbolTable* create_table(int mode) {
-    SymbolTable *table = NULL;
-    table = malloc(1 * sizeof(*table));
+    SymbolTable *table;
+    table = malloc(INITIAL_SIZE * sizeof(SymbolTable));
     if (table == NULL) {
       allocation_failed();
     }
@@ -126,12 +126,12 @@ int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
 
 int64_t get_addr_for_symbol(SymbolTable* table, const char* name) {
     int count = 0;
-    while (count < table-> len) {
-      int offset = (count * sizeof(*(table->tbl)));
-      if (strcmp((table->tbl + offset)->name, name)) { //found the name
-        return (table->tbl + offset)->addr;
-      }
-      count++;
+    Symbol* symbol = table.tbl;
+    while(symbol != NULL)
+    {
+      if (strcmp(symbol->name, name) == 0)
+        return symbol->addr;
+      symbol = symbol +  sizeof(Symbol);
     }
     return -1;
 }
