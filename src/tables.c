@@ -97,7 +97,7 @@ int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
       table->tbl = pointer;
     }
 
-    char copy = create_copy_of_str(name);
+    char* copy = create_copy_of_str(name);
 
     //if addr is not word-aligned
     if (addr % 4 != 0) {
@@ -107,7 +107,7 @@ int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
 
     //if table requires unique name and name already exists in table
     if (table->mode == SYMTBL_UNIQUE_NAME && get_addr_for_symbol(table, name) != -1) {
-      name_already_exists();
+      name_already_exists(name);
       return -1;
     }
 
@@ -115,7 +115,7 @@ int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
     symb = malloc(sizeof(table->tbl));
     symb->name = copy;
     symb->addr = addr;
-    *table->tbl[table->len * sizeof(*(table->tbl))] = symb;
+    table->tbl[table->len * sizeof(*(table->tbl))] = symb;
 
     table->len++;
 
@@ -129,7 +129,7 @@ int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
 int64_t get_addr_for_symbol(SymbolTable* table, const char* name) {
     int count = 0;
     while (count < table-> len) {
-      int offset = (count * sizeof(*(table->tbl));
+      int offset = (count * sizeof(*(table->tbl)));
       if (strcmp((table->tbl + offset)->name, name)) { //found the name
         return (table->tbl + offset)->addr;
       }
