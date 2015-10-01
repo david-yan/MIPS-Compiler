@@ -90,7 +90,7 @@ static char* create_copy_of_str(const char* str) {
 int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
     //if not enough space, resize
     if (table->len == table->cap) {
-      table->tbl = realloc(table->tbl, SCALING_FACTOR * table->len * sizeof(Symbol);
+      table->tbl = realloc(table->tbl, SCALING_FACTOR * table->len * sizeof(Symbol));
       if (table->tbl == NULL) {
         allocation_failed();
       }
@@ -111,7 +111,6 @@ int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
       return -1;
     }
 
-    Symbol *symb = NULL;
     symb = table->tbl[table->len];
     symb->name = copy;
     symb->addr = addr;
