@@ -44,14 +44,14 @@ void write_symbol(FILE* output, uint32_t addr, const char* name) {
    to store this value for use during add_to_table().
  */
 SymbolTable* create_table(int mode) {
-    SymbolTable *table = NULL;
-    table = malloc(1 * sizeof(SymbolTable));
+    SymbolTable *table = malloc(1 * sizeof(SymbolTable));
     if (table == NULL) {
       allocation_failed();
     }
     table->mode = mode;
     Symbol *symb = malloc(INITIAL_SIZE * sizeof(Symbol));
     if (symb == NULL) {
+      free(table);
       allocation_failed();
     }
     table->tbl = symb;
@@ -93,7 +93,7 @@ static char* create_copy_of_str(const char* str) {
 int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
     //if not enough space, resize
     if (table->len == table->cap) {
-      table->tbl = realloc(table->tbl, SCALING_FACTOR * table->cap * sizeof(Symbol));
+      table->tbl = realloc(table->tbl, (SCALING_FACTOR * table->cap * sizeof(Symbol)));
       if (table->tbl == NULL) {
         printf("GO AWAY");
         allocation_failed();
