@@ -59,10 +59,11 @@ int translate_num(long int* output, const char* str, long int lower_bound,
         return -1;
     }
 
-    long int* temp;
-    temp = strtol(str, NULL, 0);
+    long int temp;
+    char* endpointer;
+    temp = strtol(str, &endpointer, 0);
 
-    if (*temp != 0L && *temp >= lower_bound && *temp <= upper_bound) {
+    if (temp != 0L && temp >= lower_bound && temp <= upper_bound && *endpointer == '\0') {
       *output = *temp;
       return 0; 
     }
