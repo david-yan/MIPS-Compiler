@@ -45,11 +45,14 @@ void write_symbol(FILE* output, uint32_t addr, const char* name) {
  */
 SymbolTable* create_table(int mode) {
     SymbolTable *table = NULL;
-    table = malloc(INITIAL_SIZE * sizeof(*table));
+    table = malloc(1 * sizeof(*table));
     if (table == NULL) {
       allocation_failed();
     }
     table->mode = mode;
+    Symbol *symb = NULL;
+    Symbol *pointer = malloc(INITIAL_SIZE * sizeof(Symbol));
+
     return table;
 }
 
@@ -87,14 +90,11 @@ static char* create_copy_of_str(const char* str) {
 int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
     //if not enough space, resize
     if (table->len == table->cap) {
-      Symbol *pointer = malloc(SCALING_FACTOR * table->len * sizeof(table->tbl));
-      if (pointer == NULL) {
+      table->tbl = realloc(table->tbl, SCALING_FACTOR * table->len * sizeof(Symbol);
+      if (table->tbl == NULL) {
         allocation_failed();
       }
-      pointer = table->tbl;
       table->cap *= SCALING_FACTOR;
-      free(table->tbl);
-      table->tbl = pointer;
     }
 
     char* copy = create_copy_of_str(name);
@@ -112,14 +112,13 @@ int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
     }
 
     Symbol *symb = NULL;
-    symb = malloc(sizeof(table->tbl));
+    symb = table->tbl[table->len];
     symb->name = copy;
     symb->addr = addr;
-    table->tbl[table->len * sizeof(*(table->tbl))] = symb;
 
     table->len++;
 
-    return -1;
+    return 0;
 }
 
 /* Returns the address (byte offset) of the given symbol. If a symbol with name
