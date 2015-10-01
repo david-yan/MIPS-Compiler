@@ -45,12 +45,20 @@ void write_symbol(FILE* output, uint32_t addr, const char* name) {
  */
 SymbolTable* create_table(int mode) {
     /* YOUR CODE HERE */
-    return NULL;
+    SymbolTable *table = NULL;
+    table = malloc(1 * sizeof(*table));
+    if (table == NULL) {
+      allocation_failed();
+    }
+    table->mode = mode;
+    return table;
 }
 
 /* Frees the given SymbolTable and all associated memory. */
 void free_table(SymbolTable* table) {
-    /* YOUR CODE HERE */
+    /* YOUR CODE HERE ?????? */
+    free(table->tbl);
+    free(table);
 }
 
 /* A suggested helper function for copying the contents of a string. */
