@@ -46,12 +46,14 @@ void write_symbol(FILE* output, uint32_t addr, const char* name) {
 SymbolTable* create_table(int mode) {
     SymbolTable *table = NULL;
     table = malloc(1 * sizeof(SymbolTable));
+    printf("create");
     if (table == NULL) {
       printf("create");
       allocation_failed();
     }
     table->mode = mode;
     Symbol *symb = malloc(INITIAL_SIZE * sizeof(Symbol));
+    printf("create");
     if (symb == NULL) {
       printf("create");
       allocation_failed();
@@ -96,6 +98,7 @@ int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
     //if not enough space, resize
     if (table->len == table->cap) {
       table->tbl = realloc(table->tbl, SCALING_FACTOR * table->len * sizeof(Symbol));
+      printf("add");
       if (table->tbl == NULL) {
         printf("add");
         allocation_failed();
