@@ -44,32 +44,117 @@ const int TWO_POW_SEVENTEEN = 131072;    // 2^17
  */
 unsigned write_pass_one(FILE* output, const char* name, char** args, int num_args) {
     if (strcmp(name, "li") == 0) {
-        /* YOUR CODE HERE */
-        return 0;  
+        if (num_args != 2){
+            return 0;
+        }
+        long int number;
+        int err = translate_num(&imm, args[1], INT16_MIN, INT16_MAX);
+        if (err == 0){
+            char addiu[32];
+            sprintf(addiu, "addiu %s, %s, %s", args[0], args[0], args[1]);
+            fprintf(output, "%s\n", addiu);
+            return 1;
+        }
+        else{
+            err = translate_num(&imm, args[1], LONG_MIN, ULONG_MAX);
+            if (err == -1){
+                return 0;
+            }
+            uint16_t upper = imm >> 16;
+            uint16_t lower = (imm << 16) >> 16;
+            char lui[32];
+            char ori[32];
+            sprintf(lui, "lui $at, %s", (char) upper);
+            sprintf(ori, "ori $at, $at, %s", (char) lower);
+            fprintf(output, "%s\n", lui);
+            fprintf(output, "%s\n", ori);
+            return 2;
+        }
     } else if (strcmp(name, "move") == 0) {
-        /* YOUR CODE HERE */
-        return 0;  
+        if (num_args != 2){
+            return 0;
+        }
+        char lw[32], sw[32];
+        sprintf(lw, "lw $at, 0(%s)", args[1]);
+        sprintf(sw, "sw $at, 0(%s)", args[0]);
+        fprintf(output, "%s\n", lw);
+        fprinft(output, "%s\n", sw);
+        return 2;
     } else if (strcmp(name, "blt") == 0) {
-        /* YOUR CODE HERE */
-        return 0;  
+        if (num_args != 3){
+            return 0;
+        }
+        char slt[32];
+        sprintf(slt, "slt $at, %s, %s", args[0], args[1]);
+        fprintf(output, "%s\n", slt);
+
+        char bne[32];
+        sprintf(bne, "bne $0, $at, %s", args[2]);
+        fprintf(output, "%s\n", bne);
+        return 2;
     } else if (strcmp(name, "bgt") == 0) {
-        /* YOUR CODE HERE */
-        return 0;  
+        if (num_args != 3){
+                return 0;
+        }
+        char slt[32];
+        char bne[32];
+        sprintf(slt, "slt $at, %s, %s", args[1], args[0]);
+        sprintf(bne, "bne $0, $at, %s", args[2]);
+        fprintf(output, "%s\n" slt);
+        fprintf(output, "%s\n", bne);
+        return 2;
     } else if (strcmp(name, "traddu") == 0) {
-        /* YOUR CODE HERE */
-        return 0;       
+        if (num_args != 3){
+            return 0;
+        }
+        char add1[32], add2[32];
+        sprintf(add1, "addu %s, %s, %s", args[0], args[0], args[1]);
+        sprintf(add2, "addu %s, %s, %s", args[0], args[0], args[2]);
+        fprinft(output, "%s\n", add1);
+        fprinft(output, "%s\n", add2);
+        return 2;
     } else if (strcmp(name, "swpr") == 0) {
-        /* YOUR CODE HERE */
-        return 0;       
+        if (num_args != 2){
+            return 0;
+        }
+        char lw[32], sw1[32], sw2[32];
+        sprintf(lw, "lw $at, 0(%s)", args[0]);
+        sprintf(sw1, "sw %s, 0(%s)", args[1], args[0]);
+        sprintf(sw2, "sw $at, 0(%s)", args[1]);
+        fprintf(output, "%s\n", lw);
+        fprintf(output, "%s\n", sw1);
+        fprintf(output, "%s\n", sw2);
+        return 3;
     } else if (strcmp(name, "mul") == 0) {
-        /* YOUR CODE HERE */
-        return 0;       
+        if (num_args != 3){
+            return 0;
+        }
+        char mult[32], mflo[32];
+        sprintf(mult, "mult %s, %s", args[1], args[2]);
+        sprintf(mflo, "mflo %s", args[0]);
+        fprintf(output, "%s\n", mult);
+        fprintf(output, "%s\n", mflo);
+        return 2;
     } else if (strcmp(name, "div") == 0) {
-        /* YOUR CODE HERE */
-        return 0;       
+        if (num_args != 3){
+            return 0;
+        }
+        char div[32], mflo[32];
+        sprintf(div, "div %s, %s", args[1], args[2]);
+        sprintf(mflo, "mflo %s", args[0]);
+        fprintf(output, "%s\n", div);
+        fprintf(output, "%s\n", mflo);
+        return 2;
     } else if (strcmp(name, "rem") == 0) {
-        /* YOUR CODE HERE */
-        return 0;       
+        if (num_args != 3){
+            return 0;
+        }
+        char div[32], mfhi[32];
+        sprintf(div, "div %s, %s", args[1], args[2]);
+        sprintf(mfhi, "mfhi %s", args[0]);
+        fprintf(output, "%s\n", div);
+        fprintf(output, "%s\n", mfhi);
+        return 2;
     } 
     write_inst_string(output, name, args, num_args);
     return 1;
@@ -112,10 +197,10 @@ int translate_inst(FILE* output, const char* name, char** args, size_t num_args,
     else if (strcmp(name, "lw") == 0)    return write_mem(0x23, output, args, num_args);
     else if (strcmp(name, "sb") == 0)    return write_mem(0x28, output, args, num_args);
     else if (strcmp(name, "sw") == 0)    return write_mem(0x2b, output, args, num_args);
-    else if (strcmp(name, "beq") == 0)   return write_branch(0x04, output, args, num_args);
-    else if (strcmp(name, "bne") == 0)   return write_branch(0x05, output, args, num_args);
-    else if (strcmp(name, "j") == 0)     return write_jump(0x02, output, args, num_args);
-    else if (strcmp(name, "jal") == 0)   return write_jump(0x03, output, args, num_args);
+    else if (strcmp(name, "beq") == 0)   return write_branch(0x04, output, args, num_args, addr, symtbl);
+    else if (strcmp(name, "bne") == 0)   return write_branch(0x05, output, args, num_args, addr, symtbl);
+    else if (strcmp(name, "j") == 0)     return write_jump(0x02, output, args, num_args, addr, reltbl);
+    else if (strcmp(name, "jal") == 0)   return write_jump(0x03, output, args, num_args, addr, reltbl);
     else                                 return -1;
 }
 
