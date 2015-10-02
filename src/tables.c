@@ -45,7 +45,7 @@ void write_symbol(FILE* output, uint32_t addr, const char* name) {
  */
 SymbolTable* create_table(int mode) {
     SymbolTable *table;
-    table = malloc(INITIAL_SIZE * sizeof(SymbolTable));
+    table = malloc(sizeof(SymbolTable));
     if (table == NULL) {
       allocation_failed();
     }
