@@ -44,17 +44,15 @@ void write_symbol(FILE* output, uint32_t addr, const char* name) {
    to store this value for use during add_to_table().
  */
 SymbolTable* create_table(int mode) {
-    SymbolTable *table = malloc(1 * sizeof(SymbolTable));
+    SymbolTable *table = malloc(1 * sizeof(SymbolTable)); //???
     if (table == NULL) {
       allocation_failed();
-      return NULL;
     }
     table->mode = mode;
     Symbol *symb = malloc(INITIAL_SIZE * sizeof(Symbol));
     if (symb == NULL) {
       free(table);
       allocation_failed();
-      return NULL;
     }
     table->tbl = symb;
     table->len = 0;
@@ -109,12 +107,11 @@ int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
     }
 
         //if not enough space, resize
-    if (table->len + 1 >= table->cap) {
+    if (table->len >= table->cap) {
       Symbol *pt;
       pt = realloc(table->tbl, (SCALING_FACTOR * table->cap * sizeof(Symbol)));
       if (pt == NULL) {
         allocation_failed();
-        return -1;
       }
       table->tbl = pt;
       table->cap *= SCALING_FACTOR;
@@ -122,7 +119,7 @@ int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
 
     char* copy = create_copy_of_str(name);
 
-    Symbol *symb = (table->tbl) + table->len;
+    Symbol *symb = (table->tbl) + table->len; ///???
     symb->name = copy;
     symb->addr = addr;
 
@@ -138,7 +135,7 @@ int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
 int64_t get_addr_for_symbol(SymbolTable* table, const char* name) {
     int count = 0;
     while (count < table-> len) {
-      if (strcmp((table->tbl + count)->name, name)) { //found the name
+      if (strcmp((table->tbl + count)->name, name) == 0) { //found the name
         return (table->tbl + count)->addr;
       }
       count++;
