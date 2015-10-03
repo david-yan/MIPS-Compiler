@@ -109,6 +109,7 @@ static int parse_args(uint32_t input_line, char** args, int* num_args) {
             (*num_args)++;
         } else {
             raise_extra_arg_error(input_line, token);
+            printf("Too many args.\n");
             return -1;
         }
     }
@@ -154,12 +155,14 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
         skip_comment(buf);
 
         // Scan for the instruction name
-    	char* token = strtok(buf, IGNORE_CHARS);
+        int retval;
+        char* token = strtok(buf, IGNORE_CHARS);
         printf("First token: %s\n", token);
-        int retval = add_if_label(input_line, token, byte_offset, symtbl);
+        if (token == NULL) continue;
+        retval = add_if_label(input_line, token, byte_offset, symtbl);
         if (retval == -1) { ret_code = -1; }
         if (retval == 1 || retval == -1) { token = strtok(NULL, IGNORE_CHARS); }
-        
+        if (token == NULL) continue;
         // Scan for arguments
         char* args[MAX_ARGS];
         int num_args = 0;
@@ -167,7 +170,7 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
         retval = parse_args(input_line, &args, &num_args);
         printf("Parsed arguments.\n");
         if (retval == 0){
-    	    // Checks to see if there were any errors when writing instructions
+            // Checks to see if there were any errors when writing instructions
             unsigned int lines_written = write_pass_one(output, token, args, num_args);
             if (lines_written == 0) {
                 raise_inst_error(input_line, token, args, num_args);
@@ -176,8 +179,7 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
             printf("Wrote %i lines to file.\n", lines_written);
             byte_offset += lines_written * 4;
         }
-        else { ret_code = -1; };
-    }       
+    }
     return ret_code;
 }
 
@@ -199,12 +201,13 @@ int pass_two(FILE *input, FILE* output, SymbolTable* symtbl, SymbolTable* reltbl
     // Store input line number / byte offset below. When should each be incremented?
     uint32_t byte_offset = 0;
     uint32_t line_number = 1;
+    fgets(buf, BUF_SIZE, input);
     do{
         // First, read the next line into a buffer.
-        fgets(buf, BUF_SIZE, input);
         // Next, use strtok() to scan for next character. If there's nothing,
         // go to the next line.
         char *name = strtok(buf, IGNORE_CHARS);
+        printf("Name is %s.\n", name);
         // Parse for instruction arguments. You should use strtok() to tokenize
         // the rest of the line. Extra arguments should be filtered out in pass_one(),
         // so you don't need to worry about that here.

@@ -14,6 +14,7 @@ void write_inst_string(FILE* output, const char* name, char** args, int num_args
 }
 
 void write_inst_hex(FILE *output, uint32_t instruction) {
+    printf("Wrote %08x to file\n", instruction);
     fprintf(output, "%08x\n", instruction);
 }
 
