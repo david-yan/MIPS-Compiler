@@ -12,6 +12,10 @@ int translate_inst(FILE* output, const char* name, char** args, size_t num_args,
 
 /* Declaring helper functions: */
 
+int write_mul(uint8_t funct, FILE* output, char** args, size_t num_args);
+
+int write_mf(uint8_t funct, FILE* output, char** args, size_t num_args);
+
 int write_rtype(uint8_t funct, FILE* output, char** args, size_t num_args);
 
 int write_shift(uint8_t funct, FILE* output, char** args, size_t num_args);

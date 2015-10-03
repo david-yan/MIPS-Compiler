@@ -157,8 +157,63 @@ void test_table_2() {
  *  Add your test cases here
  ****************************************/
 
+void test_writer_type(void)
+{
+    FILE* file = fopen("file", "w");
+    char (*a[3])[16];
+    a[0] = "$s0";
+    a[1] = "$s1";
+    a[2] = "$s2";
+
+    int retval = write_rtype(0x21, file, a, 3);
+    fclose(file);
+    CU_ASSERT_TRUE(0 == retval);
+    file = fopen("file", "r");
+    char line[64];
+    CU_ASSERT_PTR_NOT_NULL(fgets(line, 64, file));
+    CU_ASSERT_STRING_EQUAL(line, "02328021\n");
+    fclose(file);
+}
+
+void test_write_shift(void)
+{
+    FILE* file = fopen("file", "w");
+    char (*args[3])[16];
+    args[0] = "$s0";
+    args[1] = "$s1";
+    args[2] = "3";
+
+    int retval = write_shift(0x00, file, args, 3);
+    fclose(file);
+    CU_ASSERT_TRUE(0 == retval);
+    file = fopen("file", "r");
+    char line[64];
+    CU_ASSERT_PTR_NOT_NULL(fgets(line, 64, file));
+    CU_ASSERT_STRING_EQUAL(line, "001180c0\n");
+    fclose(file);
+}
+
+void test_write_mem(void)
+{
+    FILE* file = fopen("file", "w");
+    char (*args[3])[16];
+    args[0] = "$s0";
+    args[1] = "3";
+    args[2] = "$s1";
+
+    int retval = write_mem(0x0f, file, args, 3);
+    fclose(file);
+    CU_ASSERT_TRUE(0 == retval);
+    file = fopen("file", "r");
+    char line[64];
+    CU_ASSERT_PTR_NOT_NULL(fgets(line, 64, file));
+    CU_ASSERT_STRING_EQUAL(line, "3e300003\n");
+    fclose(file);
+}
+
 int main(int argc, char** argv) {
     CU_pSuite pSuite1 = NULL, pSuite2 = NULL;
+    CU_pSuite write_Suite = NULL;
 
     if (CUE_SUCCESS != CU_initialize_registry()) {
         return CU_get_error();
@@ -188,10 +243,26 @@ int main(int argc, char** argv) {
         goto exit;
     }
 
+    /* Write Suite */
+    write_Suite = CU_add_suite("Testing write formats in translate.c", NULL, NULL);
+    if (!write_Suite){
+        goto exit;
+    }
+    if (!CU_add_test(write_Suite, "test_writer_type", test_writer_type)){
+        goto exit;
+    }
+    if (!CU_add_test(write_Suite, "test_write_shift", test_write_shift)){
+        goto exit;
+    }
+    if (!CU_add_test(write_Suite, "test_write_mem", test_write_mem)){
+        goto exit;
+    }
+
+
     CU_basic_set_mode(CU_BRM_VERBOSE);
     CU_basic_run_tests();
 
 exit:
     CU_cleanup_registry();
-    return CU_get_error();;
+    return CU_get_error();
 }

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #include "tables.h"
 #include "translate_utils.h"
@@ -47,7 +48,7 @@ unsigned write_pass_one(FILE* output, const char* name, char** args, int num_arg
         if (num_args != 2){
             return 0;
         }
-        long int number;
+        long int imm;
         int err = translate_num(&imm, args[1], INT16_MIN, INT16_MAX);
         if (err == 0){
             char addiu[32];
@@ -64,8 +65,8 @@ unsigned write_pass_one(FILE* output, const char* name, char** args, int num_arg
             uint16_t lower = (imm << 16) >> 16;
             char lui[32];
             char ori[32];
-            sprintf(lui, "lui $at, %s", (char) upper);
-            sprintf(ori, "ori $at, $at, %s", (char) lower);
+            sprintf(lui, "lui $at, %i", upper);
+            sprintf(ori, "ori %s, $at, %i", args[0], lower);
             fprintf(output, "%s\n", lui);
             fprintf(output, "%s\n", ori);
             return 2;
@@ -74,12 +75,10 @@ unsigned write_pass_one(FILE* output, const char* name, char** args, int num_arg
         if (num_args != 2){
             return 0;
         }
-        char lw[32], sw[32];
-        sprintf(lw, "lw $at, 0(%s)", args[1]);
-        sprintf(sw, "sw $at, 0(%s)", args[0]);
-        fprintf(output, "%s\n", lw);
-        fprinft(output, "%s\n", sw);
-        return 2;
+        char addu[32];
+        sprintf(addu, "addu %s, $0, %s", args[0], args[1]);
+        fprintf(output, "%s\n", addu);
+        return 1;
     } else if (strcmp(name, "blt") == 0) {
         if (num_args != 3){
             return 0;
@@ -100,7 +99,7 @@ unsigned write_pass_one(FILE* output, const char* name, char** args, int num_arg
         char bne[32];
         sprintf(slt, "slt $at, %s, %s", args[1], args[0]);
         sprintf(bne, "bne $0, $at, %s", args[2]);
-        fprintf(output, "%s\n" slt);
+        fprintf(output, "%s\n", slt);
         fprintf(output, "%s\n", bne);
         return 2;
     } else if (strcmp(name, "traddu") == 0) {
@@ -110,8 +109,8 @@ unsigned write_pass_one(FILE* output, const char* name, char** args, int num_arg
         char add1[32], add2[32];
         sprintf(add1, "addu %s, %s, %s", args[0], args[0], args[1]);
         sprintf(add2, "addu %s, %s, %s", args[0], args[0], args[2]);
-        fprinft(output, "%s\n", add1);
-        fprinft(output, "%s\n", add2);
+        fprintf(output, "%s\n", add1);
+        fprintf(output, "%s\n", add2);
         return 2;
     } else if (strcmp(name, "swpr") == 0) {
         if (num_args != 2){
@@ -201,7 +200,41 @@ int translate_inst(FILE* output, const char* name, char** args, size_t num_args,
     else if (strcmp(name, "bne") == 0)   return write_branch(0x05, output, args, num_args, addr, symtbl);
     else if (strcmp(name, "j") == 0)     return write_jump(0x02, output, args, num_args, addr, reltbl);
     else if (strcmp(name, "jal") == 0)   return write_jump(0x03, output, args, num_args, addr, reltbl);
+    else if (strcmp(name, "mult") == 0)  return write_mul(0x18, output, args, num_args);
+    else if (strcmp(name, "div") == 0)   return write_mul(0x1a, output, args, num_args);
+    else if (strcmp(name, "mflo") == 0)  return write_mf(0x12, output, args, num_args);
+    else if (strcmp(name, "mfhi") == 0)  return write_mf(0x10, output, args, num_args);
     else                                 return -1;
+}
+
+/* A helper function for multiply and divide. */
+int write_mul(uint8_t funct, FILE* output, char** args, size_t num_args){
+    
+    int rs = translate_reg(args[0]);
+    int rt = translate_reg(args[1]);
+    if (rs == -1 || rt == -1 || num_args != 2)
+        return -1;
+
+    uint32_t instruction = 0;
+    instruction = instruction | rs << 21;
+    instruction = instruction | rt << 16;
+    instruction = instruction | funct;
+    write_inst_hex(output, instruction);
+    return 0;
+}
+
+/* A helper function for mflo and mfli. */
+int write_mf(uint8_t funct, FILE* output, char** args, size_t num_args){
+
+    int rd = translate_reg(args[0]);
+    if (rd == -1 || num_args != 1)
+        return -1;
+
+    uint32_t instruction = 0;
+    instruction = instruction | rd << 11;
+    instruction = instruction | funct;
+    write_inst_hex(output, instruction);
+    return 0;
 }
 
 /* A helper function for writing most R-type instructions. You should use
