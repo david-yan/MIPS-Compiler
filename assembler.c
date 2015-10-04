@@ -100,16 +100,12 @@ static int add_if_label(uint32_t input_line, char* str, uint32_t byte_offset,
 */
 static int parse_args(uint32_t input_line, char** args, int* num_args) {
     char* token;
-    printf("Starting while\n");
     while ((token = strtok(NULL, IGNORE_CHARS))) {
-        printf("%i, %i\n", *num_args, MAX_ARGS);
         if (*num_args < MAX_ARGS) {
-            printf("Token is %s at %i.\n", token, *num_args);
             args[*num_args] = token;
             (*num_args)++;
         } else {
             raise_extra_arg_error(input_line, token);
-            printf("Too many args.\n");
             return -1;
         }
     }
@@ -148,7 +144,6 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
 
      // Read lines and add to instructions
     while(fgets(buf, BUF_SIZE, input)) {
-        printf("Currently on line: %s\n", buf);
         input_line++;
 
         // Ignore comments
@@ -157,7 +152,6 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
         // Scan for the instruction name
         int retval;
         char* token = strtok(buf, IGNORE_CHARS);
-        printf("First token: %s\n", token);
         if (token == NULL) continue;
         retval = add_if_label(input_line, token, byte_offset, symtbl);
         if (retval == -1) { ret_code = -1; }
@@ -166,9 +160,7 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
         // Scan for arguments
         char* args[MAX_ARGS];
         int num_args = 0;
-        printf("Parsing arguments.\n");
         retval = parse_args(input_line, &args, &num_args);
-        printf("Parsed arguments.\n");
         if (retval == 0){
             // Checks to see if there were any errors when writing instructions
             unsigned int lines_written = write_pass_one(output, token, args, num_args);
@@ -176,7 +168,6 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
                 raise_inst_error(input_line, token, args, num_args);
                 ret_code = -1;
             }
-            printf("Wrote %i lines to file.\n", lines_written);
             byte_offset += lines_written * 4;
         }
     }
@@ -207,29 +198,26 @@ int pass_two(FILE *input, FILE* output, SymbolTable* symtbl, SymbolTable* reltbl
         // Next, use strtok() to scan for next character. If there's nothing,
         // go to the next line.
         char *name = strtok(buf, IGNORE_CHARS);
-        printf("Name is %s.\n", name);
         // Parse for instruction arguments. You should use strtok() to tokenize
         // the rest of the line. Extra arguments should be filtered out in pass_one(),
         // so you don't need to worry about that here.
-        if (name != NULL)
-        {
-            char* args[MAX_ARGS];
-            int num_args = 0;
+        if (name == NULL) continue;
+        char* args[MAX_ARGS];
+        int num_args = 0;
 
-            int retval = parse_args(line_number, &args, &num_args);
-            if (retval == -1){ error = 1; }
-            else{
-                retval = translate_inst(output, name, args, num_args, byte_offset, symtbl, reltbl);
-                if (retval == -1){
-                    raise_inst_error(line_number, name, args, num_args);
-                    error = 1;
-                }
+        int retval = parse_args(line_number, &args, &num_args);
+        if (retval == -1){ error = 1; }
+        else{
+            retval = translate_inst(output, name, args, num_args, byte_offset, symtbl, reltbl);
+            if (retval == -1){
+                raise_inst_error(line_number, name, args, num_args);
+                error = 1;
             }
-            byte_offset += 4;
-            // Use translate_inst() to translate the instruction and write to output file.
-            // If an error occurs, the instruction will not be written and you should call
-            // raise_inst_error(). 
         }
+        byte_offset += 4;
+        // Use translate_inst() to translate the instruction and write to output file.
+        // If an error occurs, the instruction will not be written and you should call
+        // raise_inst_error(). 
         line_number++;
     } while(fgets(buf, BUF_SIZE, input));
     // Repeat until no more characters are left, and the return the correct return val

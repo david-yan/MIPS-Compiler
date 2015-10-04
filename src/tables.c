@@ -59,6 +59,10 @@ SymbolTable* create_table(int mode) {
 
 /* Frees the given SymbolTable and all associated memory. */
 void free_table(SymbolTable* table) {
+    for (int count = 0; count < table->len; count++){
+        Symbol *symbol = &table->tbl[count];
+        free(symbol->name);
+    }
     free(table->tbl);
     free(table);
 }
