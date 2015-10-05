@@ -52,12 +52,12 @@ unsigned write_pass_one(FILE* output, const char* name, char** args, int num_arg
         int err = translate_num(&imm, args[1], INT16_MIN, INT16_MAX);
         if (err == 0){
             char addiu[32];
-            sprintf(addiu, "addiu %s, %s, %s", args[0], args[0], args[1]);
+            sprintf(addiu, "addiu %s, $0, %s", args[0], args[1]);
             fprintf(output, "%s\n", addiu);
             return 1;
         }
         else{
-            err = translate_num(&imm, args[1], LONG_MIN, ULONG_MAX);
+            err = translate_num(&imm, args[1], INT32_MIN, UINT32_MAX);
             if (err == -1){
                 return 0;
             }
@@ -88,7 +88,7 @@ unsigned write_pass_one(FILE* output, const char* name, char** args, int num_arg
         fprintf(output, "%s\n", slt);
 
         char bne[32];
-        sprintf(bne, "bne $0, $at, %s", args[2]);
+        sprintf(bne, "bne $at, $0, %s", args[2]);
         fprintf(output, "%s\n", bne);
         return 2;
     } else if (strcmp(name, "bgt") == 0) {
@@ -314,6 +314,7 @@ int write_addiu(uint8_t opcode, FILE* output, char** args, size_t num_args) {
     int err = translate_num(&imm, args[2], INT16_MIN, INT16_MAX);
     if (err == -1 || rt == -1 || rs == -1)
         return -1;
+    if (imm < 0) imm &= 0x0000ffff;
 
     uint32_t instruction = 0;
     instruction = instruction | opcode << 26;
@@ -369,6 +370,7 @@ int write_mem(uint8_t opcode, FILE* output, char** args, size_t num_args) {
     int err = translate_num(&imm, args[1], INT16_MIN, INT16_MAX);
     if (err == -1 || rt == -1 || rs == -1)
         return -1;
+    if (imm < 0) imm &= 0x0000ffff;
 
     uint32_t instruction = 0;
     instruction = instruction | opcode << 26;
@@ -398,6 +400,7 @@ int write_branch(uint8_t opcode, FILE* output, char** args, size_t num_args, uin
         return -1;
 
     int32_t offset = (label_addr - addr - 4) / 4;
+    offset &= 0x0000ffff;
     uint32_t instruction = 0;
     instruction = instruction | opcode << 26;
     instruction = instruction | rs << 21;

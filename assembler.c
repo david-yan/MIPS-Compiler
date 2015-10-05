@@ -201,7 +201,10 @@ int pass_two(FILE *input, FILE* output, SymbolTable* symtbl, SymbolTable* reltbl
         // Parse for instruction arguments. You should use strtok() to tokenize
         // the rest of the line. Extra arguments should be filtered out in pass_one(),
         // so you don't need to worry about that here.
-        if (name == NULL) continue;
+        if (name == NULL) {
+            line_number++;
+            continue;
+        }
         char* args[MAX_ARGS];
         int num_args = 0;
 

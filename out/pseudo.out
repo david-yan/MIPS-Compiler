@@ -1,0 +1,18 @@
+.text
+2442000a
+3c01ffff
+3425e890
+3c010001
+34263880
+3c01b0ba
+3427cafe
+0164082a
+3ffffff8
+03a2082a
+3ffffff8
+
+.symbol
+4	label1
+12	label2
+
+.relocation

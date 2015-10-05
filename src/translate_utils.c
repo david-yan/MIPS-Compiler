@@ -54,7 +54,7 @@ int is_valid_label(const char* str) {
    error occurred.
  */
 int translate_num(long int* output, const char* str, long int lower_bound, long int upper_bound) {
-    if (!str || !output) {
+    if (!str) {
         return -1;
     }
 
@@ -62,7 +62,7 @@ int translate_num(long int* output, const char* str, long int lower_bound, long 
     char* endpointer;
     temp = strtol(str, &endpointer, 0);
 
-    if (temp != 0L && temp >= lower_bound && temp <= upper_bound && *endpointer == '\0') {
+    if (temp >= lower_bound && temp <= upper_bound && *endpointer == '\0') {
       *output = temp;
       return 0; 
     }
