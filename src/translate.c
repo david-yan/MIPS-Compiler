@@ -359,7 +359,7 @@ int write_jump(uint8_t opcode, FILE* output, char** args, size_t num_args, uint3
     }
 
     int32_t offset = 0;
-    add_to_table(reltbl, argus[0], addr)
+    add_to_table(reltbl, args[0], addr)
 
     uint32_t instruction = 0;
     instruction |= opcode << 26;
