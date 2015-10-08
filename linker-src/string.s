@@ -27,7 +27,15 @@ tab:	.asciiz "\t"
 # Returns: the length of the string
 #------------------------------------------------------------------------------
 strlen:
-	# YOUR CODE HERE
+	lb $t1, 0($a0)
+	addiu $v0, $0, 0
+strlen_loop:
+	beq $t1, $0, strlen_exit
+	addiu $v0, $v0, 1
+	addiu $a0, $a0, 1
+	lb $t1, 0($a0)
+	j strlen_loop
+strlen_exit:
 	jr $ra
 
 #------------------------------------------------------------------------------
@@ -41,7 +49,16 @@ strlen:
 # Returns: the destination array
 #------------------------------------------------------------------------------
 strncpy:
-	# YOUR CODE HERE
+	la $v0, 0($a0)
+strncpy_loop:
+	beq $a2, $0, strncpy_exit
+	lb $t1, 0($a1)
+	sb $t1, 0($a0)
+	addi $a2, $a2, -1
+	addiu $a1, $a1, 1
+	addiu $a0, $a0, 1
+	j strncpy_loop
+strncpy_exit:
 	jr $ra
 
 #------------------------------------------------------------------------------
@@ -57,7 +74,24 @@ strncpy:
 # Returns: pointer to the copy of the string
 #------------------------------------------------------------------------------
 copy_of_str:
-	# YOUR CODE HERE
+	addiu $sp , $sp, -12
+	sw $s0, 0($sp)
+	sw $s1, 4($sp)
+	sw $ra, 8($sp)
+	move $s0, $a0
+	jal strlen
+	addiu $s1, $v0, 0
+	addiu $a0, $v0, 0
+	li $v0, 9
+	syscall
+	move $a0, $v0
+	move $a1, $s0
+	addiu $a2, $s1, 0
+	jal strncpy
+	lw $s0, 0($sp)
+	lw $s1, 4($sp)
+	lw $ra, 8($sp)
+	addiu $sp, $sp, 12
 	jr $ra
 
 ###############################################################################
