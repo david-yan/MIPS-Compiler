@@ -48,20 +48,29 @@
 # Returns:  address of symbol if found or -1 if not found
 #------------------------------------------------------------------------------
 addr_for_symbol:
-        # YOUR CODE HERE
-        beq 	$a0 $0 notFound		 # check if symbollist is null -> return -1
-        lw	$t0 0($a0)		 # fetch the first name
-        beq	$t0 $a1	Found		# compare to given name
-        lw 	$a0 8($a0)		# either continue or return
-        j 	addr_for_symbol
-notFound:
-	addiu $v0 $0 -1
-        jr $ra
-        
-Found:
-	addu $v0 $0 $a0
-	jr $ra
-        
+	addiu	$sp, $sp, -8
+	sw	$s0, 0($sp)
+	sw	$ra, 4($sp)
+	move	$s0, $a0
+addr_for_symbol_loop:
+	beq 	$s0, $0, addr_not_found
+        lw 	$a0 0($s0)		 # fetch the first name
+        jal	streq
+        beq 	$v0, $0, addr_found	# compare to given name
+        lw  	$s0, 8($s0)		# either continue or return
+        j  	addr_for_symbol_loop
+add_not_found:
+	lw	$s0, 0($sp)
+	lw	$ra, 4($sp)
+	addiu	$sp, $sp, 8
+	li 	$v0, -1
+	jr 	$ra
+addr_found:
+	lw	$s0, 0($sp)
+	lw	$ra, 4($sp)
+	addiu	$sp, $sp, 8
+	lw 	$v0, 4($s0)
+        jr 	$ra
         
 #------------------------------------------------------------------------------
 # function add_to_list()
@@ -82,53 +91,27 @@ Found:
 # Returns: the new list
 #------------------------------------------------------------------------------
 add_to_list:    
-        # YOUR CODE HERE
-        addiu 	$sp $sp -24
-        sw	$s0 0($sp)
-        sw	$s1 4($sp)
-        sw	$s2 8($sp)
-        sw	$s3 12($sp)
-        sw	$s4 16($sp)
-        sw	$ra 20($sp)
-        
-        addu 	$s0 $a0 $0
-        addu	$s1 $a1 $0
-        addu	$s2 $s2 $0
-        
-        slt 	$s3 $0 $s0 #saves whether $a0 started out NULL
-        
-getNext:
-        beq 	$a0 $0 addData
-        lw	$a0 0($a0)
-        j 	getNext
-        
-        jal 	new_node
-        move 	$s4 $v0 #saves address of new node
-        
-        bne	$s3 $0 notEmpty
-        sw	$s4 0($s0) #put address into $s0 that is to be returned
-        j 	addData
-notEmpty:
-	sw	$s4 0($a0)
-	
-addData:
-	addu 	$a0 $a1 $0
-	jal 	copy_of_str
-	sw	$v0 0($s4)
-	
-	sw	$s2 4($s4)
-	
-        
-        addu 	$v0 $s0 $0
-        lw 	$ra 20($sp)
-        lw	$s4 16($sp)
-        lw 	$s3 12($sp)
-        lw	$s2 8($sp)
-        lw	$s1 4($sp)
-        lw	$s0 0($sp)
-        
+        addiu	$sp, $sp, -20
+        sw	$ra, 0($sp)
+        sw	$s0, 4($sp)
+        sw	$a1, 8($sp)
+        sw	$a2, 12($sp)
+        sw	$s1, 16($sp)
+        move	$s0, $a0	#store old list in $s0
+        jal	new_node
+        move	$s1, $v0	#set s1 to location of new list
+        sw	$s0, 12($s1)	#set pointer to next node to the root of the old list
+        lw	$s0, 12($sp)	#load address of symbol into s0
+        sw	$s0, 8($s1)	#store address into new list
+        lw 	$a0, 8($sp)	#load name to copy into argument
+        jal	copy_of_str
+        sw	$v0, 0($s1)	#store new name
+        move	$v0, $s1	#set return value to new list
+        lw	$ra, 0($sp)	#reset stored values
+        lw	$s0, 4($sp)
+        lw	$s1, 16($sp)
+        addiu	$sp, $sp, 20
         jr	$ra
-        
 
 ###############################################################################
 #                 DO NOT MODIFY ANYTHING BELOW THIS POINT                       
@@ -153,7 +136,7 @@ symbol_for_addr:
         lw $a0, 8($a0)
         j symbol_for_addr
 symbol_found:
-        lw $v0, 0($a0)
+        lw $v0, 4($a0)
         jr $ra
 symbol_not_found:
         li $v0, 0
