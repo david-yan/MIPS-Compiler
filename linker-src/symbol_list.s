@@ -54,22 +54,24 @@ addr_for_symbol:
 	move	$s0, $a0
 addr_for_symbol_loop:
 	beq 	$s0, $0, addr_not_found
-        lw 	$a0 0($s0)		 # fetch the first name
+        lw 	$a0, 0($s0)		 # fetch the first name
+        li	$v0, 4
+        syscall
         jal	streq
         beq 	$v0, $0, addr_found	# compare to given name
         lw  	$s0, 8($s0)		# either continue or return
         j  	addr_for_symbol_loop
-add_not_found:
+addr_not_found:
 	lw	$s0, 0($sp)
 	lw	$ra, 4($sp)
 	addiu	$sp, $sp, 8
 	li 	$v0, -1
 	jr 	$ra
 addr_found:
+	lw	$v0, 4($s0)
 	lw	$s0, 0($sp)
 	lw	$ra, 4($sp)
 	addiu	$sp, $sp, 8
-	lw 	$v0, 4($s0)
         jr 	$ra
         
 #------------------------------------------------------------------------------
@@ -100,9 +102,9 @@ add_to_list:
         move	$s0, $a0	#store old list in $s0
         jal	new_node
         move	$s1, $v0	#set s1 to location of new list
-        sw	$s0, 12($s1)	#set pointer to next node to the root of the old list
+        sw	$s0, 8($s1)	#set pointer to next node to the root of the old list
         lw	$s0, 12($sp)	#load address of symbol into s0
-        sw	$s0, 8($s1)	#store address into new list
+        sw	$s0, 4($s1)	#store address into new list
         lw 	$a0, 8($sp)	#load name to copy into argument
         jal	copy_of_str
         sw	$v0, 0($s1)	#store new name
@@ -136,11 +138,11 @@ symbol_for_addr:
         lw $a0, 8($a0)
         j symbol_for_addr
 symbol_found:
-        lw $v0, 4($a0)
+        lw $v0, 0($a0)
         jr $ra
 symbol_not_found:
         li $v0, 0
-        jr $ra                  # End addr_for_symbol
+        jr $ra                  # End symbol_for_addr
 
 #------------------------------------------------------------------------------
 # function print_list() - DO NOT MODIFY THIS FUNCTION

@@ -36,8 +36,25 @@
 # Returns: none
 #------------------------------------------------------------------------------
 hex_to_str:
-	# YOUR CODE HERE
-	jr $ra
+	addiu	$sp, $sp, -4
+	sw	$s0, 0($sp)
+	move	$s0, $a1
+hex_to_str_loop:
+	li	$t0, 16
+	div 	$a0, $t0
+	mflo	$t0
+	beq	$t0, $0, hex_to_str_done
+	sb	$t0, 0($s0)
+	mfhi	$a0
+	j	hex_to_str_loop
+hex_to_str_done:
+	li	$t0, '\n'
+	sb	$t0, 0($s0)
+	li	$t0, '\0'
+	addiu	$s0, $s0, 1
+	sb	$t0, 0($s0)
+	lw	$s0, 0($sp)
+	jr 	$ra
 
 ###############################################################################
 #                 DO NOT MODIFY ANYTHING BELOW THIS POINT                       
