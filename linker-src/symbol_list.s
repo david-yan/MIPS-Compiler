@@ -48,15 +48,15 @@
 # Returns:  address of symbol if found or -1 if not found
 #------------------------------------------------------------------------------
 addr_for_symbol:
-	addiu	$sp, $sp, -8
+	addiu	$sp, $sp, -12
 	sw	$s0, 0($sp)
 	sw	$ra, 4($sp)
+	sw	$a1, 8($sp)
 	move	$s0, $a0
 addr_for_symbol_loop:
 	beq 	$s0, $0, addr_not_found
         lw 	$a0, 0($s0)		 # fetch the first name
-        li	$v0, 4
-        syscall
+        lw	$a1, 8($sp)
         jal	streq
         beq 	$v0, $0, addr_found	# compare to given name
         lw  	$s0, 8($s0)		# either continue or return
@@ -71,7 +71,7 @@ addr_found:
 	lw	$v0, 4($s0)
 	lw	$s0, 0($sp)
 	lw	$ra, 4($sp)
-	addiu	$sp, $sp, 8
+	addiu	$sp, $sp, 12
         jr 	$ra
         
 #------------------------------------------------------------------------------

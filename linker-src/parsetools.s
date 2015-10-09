@@ -36,24 +36,33 @@
 # Returns: none
 #------------------------------------------------------------------------------
 hex_to_str:
-	addiu	$sp, $sp, -4
-	sw	$s0, 0($sp)
-	move	$s0, $a1
-hex_to_str_loop:
+	addiu	$a1, $a1, 7
 	li	$t0, 16
-	div 	$a0, $t0
-	mflo	$t0
-	beq	$t0, $0, hex_to_str_done
-	sb	$t0, 0($s0)
-	mfhi	$a0
+	li	$t1, 10
+	li	$t3, 8
+hex_to_str_loop:
+	beq	$t3, $0, hex_to_str_done
+	divu 	$a0, $t0
+	mfhi	$t2
+	mflo	$a0
+	addi	$t3, $t3, -1
+	blt	$t2, $t1, hex_to_str_dec
+	j	hex_to_str_hex
+hex_to_str_dec:
+	addiu	$t2, $t2, 48
+	sb	$t2, 0($a1)
+	addiu	$a1, $a1, -1
+	j	hex_to_str_loop
+hex_to_str_hex:
+	addiu	$t2, $t2, 87
+	sb	$t2, 0($a1)
+	addiu	$a1, $a1, -1
 	j	hex_to_str_loop
 hex_to_str_done:
 	li	$t0, '\n'
-	sb	$t0, 0($s0)
+	sb	$t0, 9($a1)
 	li	$t0, '\0'
-	addiu	$s0, $s0, 1
-	sb	$t0, 0($s0)
-	lw	$s0, 0($sp)
+	sb	$t0, 10($a1)
 	jr 	$ra
 
 ###############################################################################
