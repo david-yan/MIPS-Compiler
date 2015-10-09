@@ -49,7 +49,19 @@
 #------------------------------------------------------------------------------
 addr_for_symbol:
         # YOUR CODE HERE
+        beq 	$a0 $0 notFound		 # check if symbollist is null -> return -1
+        lw	$t0 0($a0)		 # fetch the first name
+        beq	$t0 $a1	Found		# compare to given name
+        lw 	$a0 8($a0)		# either continue or return
+        j 	addr_for_symbol
+notFound:
+	addiu $v0 $0 -1
         jr $ra
+        
+Found:
+	addu $v0 $0 $a0
+	jr $ra
+        
         
 #------------------------------------------------------------------------------
 # function add_to_list()
@@ -71,7 +83,52 @@ addr_for_symbol:
 #------------------------------------------------------------------------------
 add_to_list:    
         # YOUR CODE HERE
-        jr $ra
+        addiu 	$sp $sp -24
+        sw	$s0 0($sp)
+        sw	$s1 4($sp)
+        sw	$s2 8($sp)
+        sw	$s3 12($sp)
+        sw	$s4 16($sp)
+        sw	$ra 20($sp)
+        
+        addu 	$s0 $a0 $0
+        addu	$s1 $a1 $0
+        addu	$s2 $s2 $0
+        
+        slt 	$s3 $0 $s0 #saves whether $a0 started out NULL
+        
+getNext:
+        beq 	$a0 $0 addData
+        lw	$a0 0($a0)
+        j 	getNext
+        
+        jal 	new_node
+        move 	$s4 $v0 #saves address of new node
+        
+        bne	$s3 $0 notEmpty
+        sw	$s4 0($s0) #put address into $s0 that is to be returned
+        j 	addData
+notEmpty:
+	sw	$s4 0($a0)
+	
+addData:
+	addu 	$a0 $a1 $0
+	jal 	copy_of_str
+	sw	$v0 0($s4)
+	
+	sw	$s2 4($s4)
+	
+        
+        addu 	$v0 $s0 $0
+        lw 	$ra 20($sp)
+        lw	$s4 16($sp)
+        lw 	$s3 12($sp)
+        lw	$s2 8($sp)
+        lw	$s1 4($sp)
+        lw	$s0 0($sp)
+        
+        jr	$ra
+        
 
 ###############################################################################
 #                 DO NOT MODIFY ANYTHING BELOW THIS POINT                       
