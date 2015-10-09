@@ -103,7 +103,7 @@ getNext:
         j 	getNext
         
         jal 	new_node
-        move 	$s4 $v0 #saves address of new node
+        addu 	$s4 $v0 $0 #saves address of new node
         
         bne	$s3 $0 notEmpty
         sw	$s4 0($s0) #put address into $s0 that is to be returned
