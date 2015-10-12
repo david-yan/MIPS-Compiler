@@ -46,8 +46,16 @@ relocLabel: .asciiz ".relocation"
 # Returns: 1 if the instruction needs relocation, 0 otherwise.
 #------------------------------------------------------------------------------
 inst_needs_relocation:
-        # YOUR CODE HERE
+        srl $t0, $a0, 26
+        li  $t1, 2
+        li  $t2, 3
+        beq $t1, $t0, needsReloc
+        beq $t2, $t0, needsReloc
+        li $v0, 0
         jr $ra
+needsReloc:
+	li $v0, 1
+	jr $ra
         
 #------------------------------------------------------------------------------
 # function relocate_inst()
@@ -68,8 +76,53 @@ inst_needs_relocation:
 # Returns: the relocated instruction, or -1 if error
 #------------------------------------------------------------------------------
 relocate_inst:
-        # YOUR CODE HERE
-        jr $ra
+        addiu $sp, $sp, -24
+        sw $s4, 20($sp)
+        sw $s3, 16($sp)
+        sw $s2, 12($sp)
+        sw $s1, 8($sp)
+        sw $s0, 4($sp)
+        sw $ra, 0($sp)
+        
+        move $s0, $a0 # instruction
+        move $s1, $a1 # offset
+        move $s2, $a2 # symbol table
+        move $s3, $a3 # reloc table
+        
+        move $a0, $s3
+        jal symbol_for_addr
+        
+        beq $v0, $0, Error #could not find label/symbol associated with this byte offset
+        
+        move $a0, $s2
+        move $a1, $v0
+        
+        jal addr_for_symbol 
+        move $s4, $v0
+        
+        li $t0, -1
+        beq $s4, $t0, Error
+        
+        sll $s4, $s4, 4
+        srl $s4, $s4, 6
+        
+        srl $s0, $s0, 26
+        sll $s0, $s0, 26
+        
+        addu $v0, $s4, $s0
+	j Finish	
+Error:
+	li $v0, -1
+Finish:
+	lw $s4, 20($sp)
+	lw $s3, 16($sp)
+	lw $s2, 12($sp)
+	lw $s1, 8($sp)
+	lw $s0, 4($sp)
+	lw $ra, 0($sp)
+	addiu $sp, $sp, 24
+	jr $ra
+	
 
 ###############################################################################
 #                 DO NOT MODIFY ANYTHING BELOW THIS POINT                       
