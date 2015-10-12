@@ -72,7 +72,7 @@ test_hex_to_str:
 #-------------------------------------------
 test_parse_int:
 	addiu $sp, $sp, -4
-	sw $ra, 0($sp)
+	lw $ra, 0($sp)
 	print_str(test_parse_int_name)
 	
 	la $a0, num_1
