@@ -18,7 +18,6 @@
 
 .include "linker_utils.s"
 .include "file_utils.s"
-.include "parsetools.s"
 
 .data
 base_addr:		.word 0x00400000
