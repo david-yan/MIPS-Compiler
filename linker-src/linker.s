@@ -18,6 +18,7 @@
 
 .include "linker_utils.s"
 .include "file_utils.s"
+.include "parsetools.s"
 
 .data
 base_addr:		.word 0x00400000
@@ -83,7 +84,7 @@ write_machine_code_find_text:
 write_machine_code_next_inst:
 	# 2. Call readline() while passing in the correct arguments:
 	move $a0, $s1
-	jal readLine
+	jal readline
 
 	# Check whether readline() returned an error.
 	blt $v0, $0, write_machine_code_error
