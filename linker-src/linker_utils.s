@@ -56,6 +56,7 @@ inst_needs_relocation:
 needsReloc:
 	li $v0, 1
 	jr $ra
+
         
 #------------------------------------------------------------------------------
 # function relocate_inst()
@@ -110,7 +111,7 @@ relocate_inst:
         sll $s0, $s0, 26
         
         addu $v0, $s4, $s0
-	j Finish	
+	    j Finish	
 Error:
 	li $v0, -1
 Finish:

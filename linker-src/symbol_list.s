@@ -64,7 +64,7 @@ addr_for_symbol_loop:
 addr_not_found:
 	lw	$s0, 0($sp)
 	lw	$ra, 4($sp)
-	addiu	$sp, $sp, 8
+	addiu	$sp, $sp, 12
 	li 	$v0, -1
 	jr 	$ra
 addr_found:
