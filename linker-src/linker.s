@@ -117,15 +117,12 @@ write_machine_code_next_inst:
 
 write_machine_code_to_file:
 	# 6. Write the instruction into a string buffer via hex_to_str():
-	li $a0, 10
-	li $v0, 9
-	syscall
-	move $a1, $v0
+    la $a1, hex_buffer
 	addiu $a0, $s5, 0
 	jal hex_to_str
 	
 	# 7. Increment the byte offset by the appropriate amount:
-	addiu $s6, $s6, 1
+	addiu $s6, $s6, 4
 
 	# Here, we use the write to file syscall. WE specify the output file as $a0.
 	move $a0, $s0
