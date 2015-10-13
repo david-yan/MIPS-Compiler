@@ -114,12 +114,12 @@ write_machine_code_next_inst:
 	move $a2, $s2
 	move $a3, $s3
 	jal relocate_inst
-	move $t0, $v0 
+	move $s6, $v0 
 	
 
 write_machine_code_to_file:
 	# 6. Write the instruction into a string buffer via hex_to_str():
-	move $a0, $t0
+	move $a0, $s6
 	la $a1, hex_buffer
 	jal hex_to_str
 	
