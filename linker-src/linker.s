@@ -124,7 +124,7 @@ write_machine_code_to_file:
 	jal hex_to_str
 	
 	# 7. Increment the byte offset by the appropriate amount:
-	addiu $s4, $s4, 4
+	addiu $s5, $s5, 4
 
 	# Here, we use the write to file syscall. WE specify the output file as $a0.
 	move $a0, $s0

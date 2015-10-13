@@ -77,7 +77,7 @@ needsReloc:
 # Returns: the relocated instruction, or -1 if error
 #------------------------------------------------------------------------------
 relocate_inst:
-        addiu $sp, $sp, -24
+        addiu $sp, $sp, -24        #:LDKFJSDL:FKJSDL:FKJSDL:FKJD
         sw $s4, 20($sp)
         sw $s3, 16($sp)
         sw $s2, 12($sp)
@@ -122,7 +122,7 @@ Finish:
 	lw $s0, 4($sp)
 	lw $ra, 0($sp)
 	addiu $sp, $sp, 24
-	jr $ra
+	jr $ra  			#:LDKFJSDL:FKJSDL:FKJSDL:FKJD
 	
 
 ###############################################################################
