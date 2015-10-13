@@ -49,6 +49,7 @@ write_machine_code:
 	# You may need to save additional items onto the stack. Feel free to
 	# change this part.
 	addiu $sp, $sp, -32
+	sw $s6, 28($sp)
 	sw $s0, 24($sp)
 	sw $s1, 20($sp)
 	sw $s2, 16($sp)
@@ -98,7 +99,7 @@ write_machine_code_next_inst:
 	li $a1, 16
 	move $a0, $v1
 	jal parse_int
-	sw $v0, 28($sp)
+	move $s6, $v0
 	
 	# 4. Check if the instruction needs relocation. If it does not, branch to
 	# the label write_machine_code_to_file:
@@ -108,8 +109,7 @@ write_machine_code_next_inst:
 	
 	# 5. Here we handle relocation. Call relocate_inst() with the appropriate
 	# arguments, and store the relocated instruction in the appropriate register:
-	lw $t0, 28($sp)
-	move $a0, $t0
+	move $a0, $s6
 	move $a1, $s5
 	move $a2, $s2
 	move $a3, $s3
@@ -143,6 +143,7 @@ write_machine_code_error:
 	li $v0, -1
 write_machine_code_end:
 	# Don't forget to change this part if you saved more items onto the stack!
+	lw $s6, 28($sp)
 	lw $s0, 24($sp)
 	lw $s1, 20($sp)
 	lw $s2, 16($sp)
